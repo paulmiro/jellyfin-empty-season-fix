@@ -155,14 +155,15 @@ def get_episodes_for_season(season):
 
 
 def delete_items(item_ids):
-    for item_id_batch in range(0, len(item_ids), 100):
+    for i in range(0, len(item_ids), 100):
+        item_ids_batch = item_ids[i : i + 100]
         requests.request(
             "DELETE",
             URL + "/Items",
             headers=AUTH_HEADERS,
             verify=VERIFY_SSL,
             params={
-                "ids": ",".join(item_id_batch),
+                "ids": ",".join(item_ids_batch),
             },
         )
 
