@@ -61,7 +61,7 @@ def episode_deletion():
         sys.exit(0)
 
     print("Deleting episodes... (this may take a while)")
-    # delete_items([episode["Id"] for episode in episodes_to_delete]) # TODO: activate
+    delete_items([episode["Id"] for episode in episodes_to_delete])
 
 
 def season_deletion():
@@ -100,7 +100,7 @@ def season_deletion():
         sys.exit(0)
 
     print("Deleting seasons... (this may take a while)")
-    # delete_items([season["Id"] for season in seasons_to_delete]) # TODO: activate
+    delete_items([season["Id"] for season in seasons_to_delete])
 
 
 def setup():
@@ -155,7 +155,6 @@ def get_episodes_for_season(season):
 
 
 def delete_items(item_ids):
-    raise Exception("NUH-UH")
     for item_id_batch in range(0, len(item_ids), 100):
         requests.request(
             "DELETE",
