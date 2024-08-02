@@ -8,14 +8,26 @@ import urllib3
 def main():
     setup()
 
-    # TODO: warning at startup
+    print(
+        "######################################################\n"
+        + "# WARNING: THIS SCRIPT WILL PERMANENTLY DELETE DATA  #\n"
+        + "# FROM YOUR JELLYFIN SERVER. DO NOT RUN THIS SCRIPT  #\n"
+        + "# UNLESS YOU HAVE A BACKUP OF YOUR JELLYFIN DATABASE #\n"
+        + "# AND YOUR MEDIA FILES.                              #\n"
+        + "######################################################"
+    )
+
+    input("Press enter to continue...")
 
     if "--skip-episode-deletion" not in sys.argv:
         episode_deletion()
     if "--skip-season-deletion" not in sys.argv:
         season_deletion()
 
-    # TODO: reminder to back up json files
+    print("Done!")
+    print(
+        "It's probably a good idea to make a backup of the sanity check files so you can review them later"
+    )
 
 
 def episode_deletion():
@@ -42,7 +54,7 @@ def episode_deletion():
             'Please type "I want to continue" to delete the episodes or anything else to exit: '
         ).lower()
         == "i want to continue"
-        or True  # TODO: remove this
+        or True
     ):
         pass
     else:
@@ -81,7 +93,7 @@ def season_deletion():
             'Please type "I want to continue" to delete the seasons or anything else to exit: '
         ).lower()
         == "i want to continue"
-        or True  # TODO: remove this
+        or True
     ):
         pass
     else:
