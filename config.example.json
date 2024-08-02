@@ -1,0 +1,9 @@
+{
+  "__comment": "This is an example config file. Rename it to config.local.json and fill in the values.",
+  "api_token": "abcdefghijklmnopqrstuvwxyz",
+  "__api_token_comment": "This is the API token for your Jellyfin server. Log in as an Admin in the Jellyfin Web UI and generate one under Dashboard > API Keys.",
+  "jellyfin_host": "https://jellyfin.example.com ",
+  "__jellyfin_host_comment": "This is the URL of your Jellyfin server. It may be smart to use a direct connection that doesn't go through a reverse proxy.",
+  "verify_ssl": true,
+  "__verify_ssl_comment": "Set this to false if you're using a self-signed certificate."
+}

@@ -163,3 +163,5 @@ cython_debug/
 
 .direnv
 result
+
+config.local.json

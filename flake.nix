@@ -18,7 +18,8 @@
             (with pkgs.python3Packages; [
               pip
               venvShellHook
-              jellyfin-apiclient-python
+              requests
+              urllib3
             ]);
         };
       });
