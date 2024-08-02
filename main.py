@@ -1,3 +1,4 @@
+import sys
 import json
 
 import requests
@@ -7,29 +8,75 @@ import urllib3
 def main():
     setup()
 
-    virtual_episodes_result = get_virtual_episodes()
+    if "--skip-episode-deletion" not in sys.argv:
+        episode_deletion()
+    if "--skip-season-deletion" not in sys.argv:
+        season_deletion()
 
-    num_virtual_episodes = virtual_episodes_result["TotalRecordCount"]
-    virtual_episodes = virtual_episodes_result["Items"]
 
-    seasons_result = get_seasons()
+def episode_deletion():
+    episodes_to_delete = [
+        episode
+        for episode in get_virtual_episodes()["Items"]
+        if episode_is_placeholder(episode)
+    ]
 
-    num_seasons = seasons_result["TotalRecordCount"]
-    seasons = seasons_result["Items"]
+    sanity_check = generate_sanity_check(episodes_to_delete)
 
-    for season in seasons:
-        season_episodes_result = get_episodes_for_season(season)
-        num_season_episodes = season_episodes_result["TotalRecordCount"]
-        season_episodes = season_episodes_result["Items"]
-        counter = 0
-        for episode in season_episodes:
-            if episode["LocationType"] == "Virtual":
-                counter += 1
+    with open("episodes_sanity_check.json", "w") as f:
+        json.dump(sanity_check, f, indent=2)
 
-        if counter > 0:
-            print(
-                f"{counter} virtual episodes in Season {season['Name']} in Series {season['SeriesName']}"
-            )
+    print(f"Found {len(episodes_to_delete)} episodes to delete")
+
+    print(
+        "This script will PERMANENTLY delete the episodes listed in episodes_sanity_check.json\nPlease take a good look at it and make sure the listed episodes are actually placeholders"
+    )
+
+    if (
+        input(
+            'Please type "I want to continue" to delete the episodes or anything else to exit: '
+        ).lower()
+        == "i want to continue"
+    ):
+        pass
+    else:
+        sys.exit(0)
+
+
+def season_deletion():
+    pass
+
+
+def generate_sanity_check(episodes_to_delete):
+    output = {}
+
+    for episode in episodes_to_delete:
+        if episode["SeriesId"] not in output.keys():
+            output[episode["SeriesId"]] = {
+                "Name": (
+                    episode["SeriesName"]
+                    if "SeriesName" in episode.keys()
+                    else "NONAME"
+                ),
+            }
+        if episode["SeasonId"] not in output[episode["SeriesId"]].keys():
+            output[episode["SeriesId"]][episode["SeasonId"]] = {
+                "Name": (
+                    episode["SeasonName"]
+                    if "SeasonName" in episode.keys()
+                    else "NONAME"
+                ),
+                "Episodes": [],
+            }
+        output[episode["SeriesId"]][episode["SeasonId"]]["Episodes"].append(
+            {
+                "Name": (episode["Name"] if "Name" in episode.keys() else "NONAME"),
+                "Id": episode["Id"],
+                "Number": episode["IndexNumber"],
+            }
+        )
+
+    return output
 
 
 def setup():
@@ -53,6 +100,7 @@ def get_virtual_episodes():
             "Recursive": True,
             "IncludeItemTypes": "Episode",
             "locationTypes": "Virtual",
+            "fields": "Path",
         },
     ).json()
 
@@ -80,6 +128,26 @@ def get_episodes_for_season(season):
             "seasonId": season["Id"],
         },
     ).json()
+
+
+def delete_episodes(episode_ids):
+    if len(episode_ids) == 0:
+        return
+    if len(episode_ids) > 100:
+        raise Exception("Cannot delete more than 100 episodes at a time")
+    requests.request(
+        "DELETE",
+        URL + "/Items",
+        headers=AUTH_HEADERS,
+        verify=VERYFY_SSL,
+        params={
+            "ids": ",".join(episode_ids),
+        },
+    )
+
+
+def episode_is_placeholder(episode):
+    return episode["LocationType"] == "Virtual" and "Path" not in episode.keys()
 
 
 if __name__ == "__main__":
