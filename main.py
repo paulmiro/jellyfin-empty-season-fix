@@ -14,37 +14,18 @@ def main():
     if not VERYFY_SSL:
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-    virtual_episodes_result = requests.request(
-        "GET",
-        URL + "/Items",
-        headers=AUTH_HEADERS,
-        verify=VERYFY_SSL,
-        params={
-            "Recursive": True,
-            "IncludeItemTypes": "Episode",
-            "locationTypes": "Virtual",
-        },
-    ).json()
+    virtual_episodes_result = get_virtual_episodes()
 
     num_virtual_episodes = virtual_episodes_result["TotalRecordCount"]
     virtual_episodes = virtual_episodes_result["Items"]
 
-    seasons_result = requests.request(
-        "GET",
-        URL + "/Items",
-        headers=AUTH_HEADERS,
-        verify=VERYFY_SSL,
-        params={
-            "Recursive": True,
-            "IncludeItemTypes": "Season",
-        },
-    ).json()
+    seasons_result = get_seasons()
 
     num_seasons = seasons_result["TotalRecordCount"]
     seasons = seasons_result["Items"]
 
     for season in seasons:
-        season_episodes_result = get_episodes(season)
+        season_episodes_result = get_episodes_for_season(season)
         num_season_episodes = season_episodes_result["TotalRecordCount"]
         season_episodes = season_episodes_result["Items"]
         counter = 0
@@ -58,8 +39,35 @@ def main():
             )
 
 
-def get_episodes(season):
-    result = requests.request(
+def get_virtual_episodes():
+    return requests.request(
+        "GET",
+        URL + "/Items",
+        headers=AUTH_HEADERS,
+        verify=VERYFY_SSL,
+        params={
+            "Recursive": True,
+            "IncludeItemTypes": "Episode",
+            "locationTypes": "Virtual",
+        },
+    ).json()
+
+
+def get_seasons():
+    return requests.request(
+        "GET",
+        URL + "/Items",
+        headers=AUTH_HEADERS,
+        verify=VERYFY_SSL,
+        params={
+            "Recursive": True,
+            "IncludeItemTypes": "Season",
+        },
+    ).json()
+
+
+def get_episodes_for_season(season):
+    return requests.request(
         "GET",
         URL + "/Shows/" + season["SeriesId"] + "/Episodes",
         headers=AUTH_HEADERS,
@@ -68,7 +76,6 @@ def get_episodes(season):
             "seasonId": season["Id"],
         },
     ).json()
-    return result
 
 
 if __name__ == "__main__":
