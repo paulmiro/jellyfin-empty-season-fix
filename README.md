@@ -49,3 +49,7 @@ You can run this script from any machine that has access to your Jellyfin server
 
 - `--skip-episode-deletion`: skips the episode deletion step
 - `--skip-season-deletion`: skips the season deletion step
+
+## Issues
+
+If you run into any problems, please open an issue on this repo. I'll try to help as much as I can.
