@@ -39,6 +39,10 @@ def episode_deletion():
 
     sanity_check = generate_episodes_sanity_check(episodes_to_delete)
 
+    if len(episodes_to_delete) == 0:
+        print("No missing episodes found, skipping episode deletion")
+        return
+
     with open("episodes_sanity_check.json", "w") as f:
         json.dump(sanity_check, f, indent=2)
 
@@ -54,7 +58,6 @@ def episode_deletion():
             'Please type "I want to continue" to delete the episodes or anything else to exit: '
         ).lower()
         == "i want to continue"
-        or True
     ):
         pass
     else:
@@ -80,6 +83,10 @@ def season_deletion():
 
     sanity_check = generate_seasons_sanity_check(seasons_to_delete)
 
+    if len(seasons_to_delete) == 0:
+        print("No empty seasons found, skipping season deletion")
+        return
+
     with open("seasons_sanity_check.json", "w") as f:
         json.dump(sanity_check, f, indent=2)
 
@@ -93,7 +100,6 @@ def season_deletion():
             'Please type "I want to continue" to delete the seasons or anything else to exit: '
         ).lower()
         == "i want to continue"
-        or True
     ):
         pass
     else:
@@ -157,6 +163,7 @@ def get_episodes_for_season(season):
 def delete_items(item_ids):
     for i in range(0, len(item_ids), 100):
         item_ids_batch = item_ids[i : i + 100]
+        print(f"Deleting items {i + 1} to {i + len(item_ids_batch)}")
         requests.request(
             "DELETE",
             URL + "/Items",
